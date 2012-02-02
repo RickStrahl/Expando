@@ -14,6 +14,17 @@ namespace FlyoutMenuTests
     {
         public string Name { get; set; }
         public DateTime Entered { get; set; }
+
+
+        public ExpandoInstance() { }
+
+        /// <summary>
+        /// Allow passing in of an instance
+        /// </summary>
+        /// <param name="instance"></param>
+        public ExpandoInstance(object instance)
+            : base(instance)
+        {}        
     }
 
     /// <summary>
@@ -120,12 +131,13 @@ namespace FlyoutMenuTests
         [TestMethod]
         public void AddAndReadDynamicPropertiesTest()
         {
+            // strong typing first
             var ex = new ExpandoInstance();
             ex.Name = "Rick";
             ex.Entered = DateTime.Now;
 
+            // create dynamic and create new props
             dynamic exd = ex;
-
             string company = "West Wind";
             int count = 10;
 
@@ -206,7 +218,39 @@ namespace FlyoutMenuTests
                 Console.WriteLine(prop.Key + " " + prop.Value);
             }            
         }
+
+        [TestMethod]
+        public void MixInObjectInstanceTest()
+        {
+            // Create expando an mix-in second objectInstanceTest
+            var ex = new ExpandoInstance( new Addresses() );
+            ex.Name = "Rick";
+            ex.Entered = DateTime.Now;
+
+            // create dynamic
+            dynamic exd = ex;
+
+            // values should show Addresses initialized values (not null)
+            Console.WriteLine(exd.Address);
+            Console.WriteLine(exd.Email);
+            Console.WriteLine(exd.Phone);
+        }
+
     }
 
+
+    public class Addresses
+    {
+        public string Address { get; set; }
+        public string Email { get; set; }
+        public string Phone { get; set; }
+
+        public Addresses()
+        {
+            Address = "32 Kaiea";
+            Phone = "808 NO-HATE";
+            Email = "rick@whatsa.com";
+        }
+    }
 
 }
