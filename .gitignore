@@ -1,0 +1,15 @@
+*.user
+*.aps
+*.suo
+*.bak
+bin
+[dD]ebug*/
+[rR]elease*/
+obj/
+*.ncb
+*.cache
+*.log
+*.sbr
+Thumbs.db
+*.vspscc
+*.ilk

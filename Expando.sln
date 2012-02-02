@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Expando", "Expando\Expando.csproj", "{433C2BB8-0642-4735-8D45-D843E6A53C6E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExpandoTests", "ExpandoTests\ExpandoTests.csproj", "{B88816AD-E7D2-4921-BFE1-B44D72D024E6}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{4FD5E0B3-02C3-450B-AB51-58BF80DE70B3}"
+EndProject
+Global
+	GlobalSection(TestCaseManagementSettings) = postSolution
+		CategoryFile = Expando\Expando.vsmdi
+	EndGlobalSection
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{433C2BB8-0642-4735-8D45-D843E6A53C6E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{433C2BB8-0642-4735-8D45-D843E6A53C6E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{433C2BB8-0642-4735-8D45-D843E6A53C6E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{433C2BB8-0642-4735-8D45-D843E6A53C6E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B88816AD-E7D2-4921-BFE1-B44D72D024E6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B88816AD-E7D2-4921-BFE1-B44D72D024E6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B88816AD-E7D2-4921-BFE1-B44D72D024E6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B88816AD-E7D2-4921-BFE1-B44D72D024E6}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
