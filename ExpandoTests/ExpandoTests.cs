@@ -73,7 +73,7 @@ namespace FlyoutMenuTests
         /// Summary method that demonstrates some
         /// of the basic behaviors.
         /// 
-        /// More specific tests below
+        /// More specific tests are provided below
         /// </summary>
         [TestMethod]
         public void ExandoModesTest()
