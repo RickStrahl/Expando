@@ -6,11 +6,15 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Westwind.Utilities;
 using System.Dynamic;
 using Westwind.Utilities.Dynamic;
+using System.Web.Script.Serialization;
+using System.Collections;
+using System.Diagnostics;
 
 namespace FlyoutMenuTests
 {
 
-    public class ExpandoInstance : Expando
+    [Serializable]
+    public class ExpandoInstance : Westwind.Utilities.Dynamic.Expando
     {
         public string Name { get; set; }
         public DateTime Entered { get; set; }
@@ -107,7 +111,7 @@ namespace FlyoutMenuTests
 
 
             // iterate over all 'dynamic' properties
-            foreach (KeyValuePair<string,object> prop in exd)
+            foreach (var prop in ex)
             {
                 Console.WriteLine(prop.Key + " " + prop.Value);
             }
@@ -210,6 +214,7 @@ namespace FlyoutMenuTests
             // Dictionary Count - 2 dynamic props added
             Assert.IsTrue(ex.Count == 2);
 
+            // Show that we have an enumerator
             Assert.IsTrue(exd.GetEnumerator() != null);
 
             // iterate over all 'dynamic' properties
@@ -236,9 +241,36 @@ namespace FlyoutMenuTests
             Console.WriteLine(exd.Phone);
         }
 
+
+        [TestMethod]
+        public void XmlSerializeTest()
+        {
+            var ex = new ExpandoInstance();
+            ex.Name = "Rick";
+            ex.Entered = DateTime.Now;
+
+            string address = "32 Kaiea";
+
+            ex["Address"] = address;
+            ex["Contacted"] = true;
+            
+            dynamic exd = ex;
+            exd.Count = 10;
+            exd.Completed = DateTime.Now.AddHours(2);
+
+
+            JavaScriptSerializer ser = new JavaScriptSerializer();
+            Console.WriteLine(ser.Serialize(ex));
+            Console.WriteLine();
+            Console.WriteLine(ser.Serialize(exd));
+            Console.WriteLine();
+                       
+        }
+
+
     }
 
-
+    [Serializable]
     public class Addresses
     {
         public string Address { get; set; }

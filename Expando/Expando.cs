@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Dynamic;
 using System.Reflection;
+using System.Collections;
 
 namespace Westwind.Utilities.Dynamic
 {
@@ -20,7 +21,8 @@ namespace Westwind.Utilities.Dynamic
     /// Dynamic: dynamic cast allows access to dictionary and native properties/methods
     /// Dictionary: Any of the extended properties are accessible via IDictionary interface
     /// </summary>
-    public class Expando : DynamicObject, IDynamicMetaObjectProvider, IDictionary<string,object>
+    [Serializable]
+    public class Expando : DynamicObject, IDynamicMetaObjectProvider, IEnumerable<KeyValuePair<string,object>>        
     {
         /// <summary>
         /// Instance of object passed in
@@ -32,11 +34,23 @@ namespace Westwind.Utilities.Dynamic
         /// </summary>
         Type InstanceType;
 
+        PropertyInfo[] InstancePropertyInfo
+        {
+            get
+            {
+                if (_InstancePropertyInfo == null && Instance != null)                
+                    _InstancePropertyInfo = Instance.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly);
+                return _InstancePropertyInfo;                
+            }
+        }
+        PropertyInfo[] _InstancePropertyInfo;
+
+
         /// <summary>
         /// String Dictionary that contains the extra dynamic values
         /// stored on this object/instance
         /// </summary>
-        protected Dictionary<string,object> Properties = new Dictionary<string, object>();
+        public Dictionary<string,object> Properties = new Dictionary<string, object>();
 
         /// <summary>
         /// This constructor just works off the internal dictionary and any 
@@ -62,12 +76,20 @@ namespace Westwind.Utilities.Dynamic
             Initialize(instance);
         }
 
+
         protected virtual void Initialize(object instance)
         {
             Instance = instance;
             if (instance != null)
                 InstanceType = instance.GetType();           
         }
+
+
+        public override IEnumerable<string> GetDynamicMemberNames()
+        {
+            return base.GetDynamicMemberNames();
+        }
+
 
        /// <summary>
        /// Try to retrieve a member by name first from instance properties
@@ -155,6 +177,7 @@ namespace Westwind.Utilities.Dynamic
             result = null;
             return false;
         }
+        
 
         /// <summary>
         /// Reflection Helper method to retrieve a property
@@ -237,6 +260,52 @@ namespace Westwind.Utilities.Dynamic
             return false;
         }
 
+
+
+        /// <summary>
+        /// Indexer to allow setting of properties
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        public object this[string key]
+        {
+            get
+            {
+                try
+                {
+                    // try to get from properties collection first
+                    return Properties[key];
+                }
+                catch (KeyNotFoundException ex)
+                {
+                    // try reflection on instanceType
+                    object result = null;
+                    if (GetProperty(Instance, key, out result))
+                        return result;
+
+                    // nope doesn't exist
+                    throw;
+                }
+            }
+            set
+            {
+                if (Properties.ContainsKey(key))
+                {
+                    Properties[key] = value;
+                    return;
+                }
+
+                // check instance for existance of type first
+                var miArray = InstanceType.GetMember(key, BindingFlags.Public | BindingFlags.GetProperty);
+                if (miArray != null && miArray.Length > 0)
+                    SetProperty(Instance, key, value);
+                else
+                    Properties[key] = value;
+            }
+        }
+
+
+#if false
         #region IDictionary<string,object> implementation
 
 
@@ -283,47 +352,6 @@ namespace Westwind.Utilities.Dynamic
         }
 
 
-        /// <summary>
-        
-        /// </summary>
-        /// <param name="key"></param>
-        /// <returns></returns>
-        public object this[string key]
-        {
-            get
-            {
-                try
-                {
-                    // try to get from properties collection first
-                    return Properties[key];
-                }
-                catch (KeyNotFoundException ex)
-                {
-                    // try reflection on instanceType
-                    object result = null;
-                    if (GetProperty(Instance, key, out result))
-                        return result;
-
-                    // nope doesn't exist
-                    throw;
-                }
-            }
-            set
-            {
-                if (Properties.ContainsKey(key))
-                {
-                    Properties[key] = value;
-                    return;
-                }
-
-                // check instance for existance of type first
-                var miArray = InstanceType.GetMember(key, BindingFlags.Public | BindingFlags.GetProperty);
-                if (miArray != null && miArray.Length > 0)
-                    SetProperty(Instance, key, value);
-                else
-                    Properties[key] = value;
-            }
-        }
 
         public void Add(KeyValuePair<string, object> item)
         {
@@ -360,17 +388,93 @@ namespace Westwind.Utilities.Dynamic
             return Properties.Remove(item.Key); 
         }
 
+        /// <summary>
+        /// Return both dynamic and declared properties
+        /// </summary>
+        /// <param name="dynamicMembersOnly"></param>
+        /// <returns></returns>
         public IEnumerator<KeyValuePair<string, object>> GetEnumerator()
         {
             foreach(var key in this.Properties.Keys)
-                yield return new KeyValuePair<string,object>(key,this.Properties[key]);            
+                yield return new KeyValuePair<string,object>(key,this.Properties[key]);
+
+            var pi = this.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
+            foreach (var prop in pi)            
+                yield return new KeyValuePair<string, object>(prop.Name, prop.GetValue(this, null));            
+        }
+
+        public IEnumerator<KeyValuePair<string, object>> GetEnumerator(bool dynamicMembersOnly)
+        {
+            foreach (var key in this.Properties.Keys)
+                yield return new KeyValuePair<string, object>(key, this.Properties[key]);
         }
 
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
         {
-            return Properties.GetEnumerator(); 
+            foreach (var key in this.Properties.Keys)
+                yield return new KeyValuePair<string, object>(key, this.Properties[key]);
+
+            var pi = this.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
+            foreach (var prop in pi)
+                yield return new KeyValuePair<string, object>(prop.Name, prop.GetValue(this, null));
         }
 
-    #endregion
+  
+        #endregion
+#endif
+
+
+        public int Count
+        {
+            get { return Properties.Count; }            
+        }
+
+
+
+        public IEnumerator<KeyValuePair<string, object>> GetEnumerator()
+        {
+            foreach (var key in this.Properties.Keys)
+                yield return new KeyValuePair<string, object>(key, this.Properties[key]);
+
+            if (Instance != null)
+            {
+                PropertyInfo[] pi = Instance.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
+                foreach (var prop in pi)
+                    yield return new KeyValuePair<string, object>(prop.Name, prop.GetValue(Instance, null));
+            }
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            foreach (var key in this.Properties.Keys)
+                yield return new KeyValuePair<string, object>(key, this.Properties[key]);
+
+            if (Instance != null)
+            {                
+                foreach (var prop in this.InstancePropertyInfo)
+                    yield return new KeyValuePair<string, object>(prop.Name, prop.GetValue(Instance, null));
+            }
+        }
+
+        #region SimulatedDictionary 
+        // all the following methods only operate on the Properties collection
+        public void Add(KeyValuePair<string, object> item)
+        {
+            Properties.Add(item.Key, item.Value);
+        }
+
+        public void Clear()
+        {
+            Properties.Clear();
+        }
+
+        public bool Contains(KeyValuePair<string, object> item)
+        {
+            return Properties.ContainsKey(item.Key);
+        }
+        #endregion
+
     }
+
+ 
 }
