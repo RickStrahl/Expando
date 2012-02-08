@@ -22,7 +22,7 @@ namespace Westwind.Utilities.Dynamic
     /// Dictionary: Any of the extended properties are accessible via IDictionary interface
     /// </summary>
     [Serializable]
-    public class Expando : DynamicObject, IDynamicMetaObjectProvider, IEnumerable<KeyValuePair<string,object>>        
+    public class Expando : DynamicObject, IDynamicMetaObjectProvider
     {
         /// <summary>
         /// Instance of object passed in
@@ -49,8 +49,11 @@ namespace Westwind.Utilities.Dynamic
         /// <summary>
         /// String Dictionary that contains the extra dynamic values
         /// stored on this object/instance
-        /// </summary>
-        public Dictionary<string,object> Properties = new Dictionary<string, object>();
+        /// </summary>        
+        /// <remarks>Using PropertyBag to support XML Serialization of the dictionary</remarks>
+        public PropertyBag Properties = new PropertyBag();
+
+        //public Dictionary<string,object> Properties = new Dictionary<string, object>();
 
         /// <summary>
         /// This constructor just works off the internal dictionary and any 
@@ -60,7 +63,7 @@ namespace Westwind.Utilities.Dynamic
         /// </summary>
         public Expando() 
         {
-            Initialize(this);
+            Initialize(this);            
         }
 
         /// <summary>
@@ -262,10 +265,26 @@ namespace Westwind.Utilities.Dynamic
 
 
 
+
+
         /// <summary>
-        /// Indexer to allow setting of properties
+        /// Convenience method that provides a string Indexer 
+        /// to the Properties collection AND the strongly typed
+        /// properties of the object by name.
+        /// 
+        /// // dynamic
+        /// exp["Address"] = "112 nowhere lane"; 
+        /// // strong
+        /// var name = exp["StronglyTypedProperty"] as string; 
         /// </summary>
+        /// <remarks>
+        /// The getter checks the Properties dictionary first
+        /// then looks in PropertyInfo for properties.
+        /// The setter checks the instance properties before
+        /// checking the Properties dictionary.
+        /// </remarks>
         /// <param name="key"></param>
+        /// 
         /// <returns></returns>
         public object this[string key]
         {
@@ -424,57 +443,49 @@ namespace Westwind.Utilities.Dynamic
 #endif
 
 
-        public int Count
+
+        /// <summary>
+        /// Returns and the properties of 
+        /// </summary>
+        /// <param name="includeProperties"></param>
+        /// <returns></returns>
+        public IEnumerable<KeyValuePair<string,object>> GetProperties(bool includeInstanceProperties = false)
         {
-            get { return Properties.Count; }            
-        }
-
-
-
-        public IEnumerator<KeyValuePair<string, object>> GetEnumerator()
-        {
-            foreach (var key in this.Properties.Keys)
-                yield return new KeyValuePair<string, object>(key, this.Properties[key]);
-
-            if (Instance != null)
+            if (includeInstanceProperties && Instance != null)
             {
-                PropertyInfo[] pi = Instance.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
-                foreach (var prop in pi)
-                    yield return new KeyValuePair<string, object>(prop.Name, prop.GetValue(Instance, null));
-            }
-        }
-
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            foreach (var key in this.Properties.Keys)
-                yield return new KeyValuePair<string, object>(key, this.Properties[key]);
-
-            if (Instance != null)
-            {                
                 foreach (var prop in this.InstancePropertyInfo)
                     yield return new KeyValuePair<string, object>(prop.Name, prop.GetValue(Instance, null));
             }
-        }
 
-        #region SimulatedDictionary 
-        // all the following methods only operate on the Properties collection
-        public void Add(KeyValuePair<string, object> item)
-        {
-            Properties.Add(item.Key, item.Value);
-        }
+            foreach (var key in this.Properties.Keys)
+               yield return new KeyValuePair<string, object>(key, this.Properties[key]);
 
-        public void Clear()
-        {
-            Properties.Clear();
         }
+  
 
-        public bool Contains(KeyValuePair<string, object> item)
+        /// <summary>
+        /// Checks whether a property exists in the Property collection
+        /// or as a property on the instance
+        /// </summary>
+        /// <param name="item"></param>
+        /// <returns></returns>
+        public bool Contains(KeyValuePair<string, object> item, bool includeInstanceProperties = false)
         {
-            return Properties.ContainsKey(item.Key);
-        }
-        #endregion
+            bool res = Properties.ContainsKey(item.Key);
+            if (res)
+                return true;
+
+            if (includeInstanceProperties && Instance != null)
+            {
+                foreach (var prop in this.InstancePropertyInfo)
+                {
+                    if (prop.Name == item.Key)
+                        return true;
+                }
+            }
+
+            return false;
+        }        
 
     }
-
- 
 }

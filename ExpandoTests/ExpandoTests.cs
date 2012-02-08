@@ -10,7 +10,7 @@ using System.Web.Script.Serialization;
 using System.Collections;
 using System.Diagnostics;
 
-namespace FlyoutMenuTests
+namespace ExpandoTests
 {
 
     [Serializable]
@@ -91,45 +91,43 @@ namespace FlyoutMenuTests
         /// More specific tests are provided below
         /// </summary>
         [TestMethod]
-        public void ExandoModesTest()
-        {
-            // Set standard properties
-            var ex = new ExpandoInstance();
-            ex.Name = "Rick";
-            ex.Entered = DateTime.Now;
+public void ExandoModesTest()
+{
+    // Set standard properties
+    var ex = new ExpandoInstance();
+    ex.Name = "Rick";
+    ex.Entered = DateTime.Now;
 
-            // set dynamic properties
-            dynamic exd = ex;
-            exd.Company = "West Wind";
-            exd.Accesses = 10;
+    // set dynamic properties
+    dynamic exd = ex;
+    exd.Company = "West Wind";
+    exd.Accesses = 10;
 
-            
-            // set dynamic properties as dictionary
-            ex["Address"] = "32 Kaiea";
-            ex["Email"] = "rick@west-wind.com";
-            ex["TotalOrderAmounts"] = 51233.99M;
+    // set dynamic properties as dictionary
+    ex["Address"] = "32 Kaiea";
+    ex["Email"] = "rick@west-wind.com";
+    ex["TotalOrderAmounts"] = 51233.99M;
 
+    // iterate over all properties dynamic and native
+    foreach (var prop in ex.GetProperties(true))
+    {
+        Console.WriteLine(prop.Key + " " + prop.Value);
+    }
 
-            // iterate over all 'dynamic' properties
-            foreach (var prop in ex)
-            {
-                Console.WriteLine(prop.Key + " " + prop.Value);
-            }
+    // you can access plain properties both as explicit or dynamic
+    Assert.AreEqual(ex.Name, exd.Name, "Name doesn't match");
 
-            // you can access plain properties both as explicit or dynamic
-            Assert.AreEqual(ex.Name, exd.Name, "Name doesn't match");
+    // You can access dynamic properties either as dynamic or via IDictionary
+    Assert.AreEqual(exd.Company, ex["Company"] as string, "Company doesn't match");
+    Assert.AreEqual(exd.Address, ex["Address"] as string, "Name doesn't match");
 
-            // You can access dynamic properties either as dynamic or via IDictionary
-            Assert.AreEqual(exd.Company, ex["Company"] as string, "Company doesn't match");
-            Assert.AreEqual(exd.Address, ex["Address"] as string, "Name doesn't match");
+    // You can access strong type properties via the collection as well (inefficient though)
+    Assert.AreEqual(ex.Name, ex["Name"] as string);
 
-            // You can access explicit properties via the collection as well (inefficient though)
-            Assert.AreEqual(ex.Name, ex["Name"] as string);
-
-            // dynamic can access everything
-            Assert.AreEqual(ex.Name, exd.Name);  // native property
-            Assert.AreEqual(ex["TotalOrderAmounts"], exd.TotalOrderAmounts); // dictionary property
-        }
+    // dynamic can access everything
+    Assert.AreEqual(ex.Name, exd.Name);  // native property
+    Assert.AreEqual(ex["TotalOrderAmounts"], exd.TotalOrderAmounts); // dictionary property
+}
 
 
         [TestMethod]
@@ -211,14 +209,15 @@ namespace FlyoutMenuTests
             exd.Company = "West Wind";
             exd.Accesses = 10;
 
+            // Dictionary pseudo implementation
+            ex["Count"] = 10;
+            ex["Type"] = "NEWAPP";
+
             // Dictionary Count - 2 dynamic props added
-            Assert.IsTrue(ex.Count == 2);
+            Assert.IsTrue(ex.Properties.Count == 4);
 
-            // Show that we have an enumerator
-            Assert.IsTrue(exd.GetEnumerator() != null);
-
-            // iterate over all 'dynamic' properties
-            foreach (KeyValuePair<string, object> prop in exd)
+               // iterate over all properties
+            foreach (KeyValuePair<string, object> prop in exd.GetProperties(true))
             {
                 Console.WriteLine(prop.Key + " " + prop.Value);
             }            
@@ -243,7 +242,7 @@ namespace FlyoutMenuTests
 
 
         [TestMethod]
-        public void XmlSerializeTest()
+        public void JsonSerializeTest()
         {
             var ex = new ExpandoInstance();
             ex.Name = "Rick";
@@ -260,13 +259,42 @@ namespace FlyoutMenuTests
 
 
             JavaScriptSerializer ser = new JavaScriptSerializer();
+            Console.WriteLine("*** Serialized Native object:");
             Console.WriteLine(ser.Serialize(ex));
             Console.WriteLine();
+
+            Console.WriteLine();
+            Console.WriteLine("*** Serialized Dynamic object:");
             Console.WriteLine(ser.Serialize(exd));
             Console.WriteLine();
-                       
         }
 
+        [TestMethod]
+        public void XmlSerializeTest()
+        {
+            var ex = new ExpandoInstance();
+            ex.Name = "Rick";
+            ex.Entered = DateTime.Now;
+
+            string address = "32 Kaiea";
+
+            ex["Address"] = address;
+            ex["Contacted"] = true;
+
+            dynamic exd = ex;
+            exd.Count = 10;
+            exd.Completed = DateTime.Now.AddHours(2);
+
+            string xml;
+            SerializationUtils.SerializeObject(ex, out xml);
+
+            Console.WriteLine(xml);            
+        
+            ExpandoInstance ex2 = SerializationUtils.DeSerializeObject(xml, typeof(ExpandoInstance)) as ExpandoInstance;
+
+            Assert.IsNotNull(ex2);
+            Assert.IsTrue(ex2["Address"] as string == address);
+        }
 
     }
 
