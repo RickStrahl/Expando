@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Dynamic;
 using System.Reflection;
-using System.Collections;
 
 namespace Westwind.Utilities.Dynamic
 {
@@ -90,7 +89,8 @@ namespace Westwind.Utilities.Dynamic
 
         public override IEnumerable<string> GetDynamicMemberNames()
         {
-            return base.GetDynamicMemberNames();
+            foreach (var prop in this.GetProperties(false))            
+                yield return prop.Key;            
         }
 
 
