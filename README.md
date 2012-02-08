@@ -2,18 +2,50 @@
 
 Class that allows to create extensible, dynamic types that can add properties at runtime. Similar to ExpandoObject() but with the ability to subclass your objects and effectively extend the class instance. You can also mix-in a separate object via constructor parameter.
 
-## License
-© West Wind Technologies, 2012
+##Example Usage
 
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
- 
-The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
- 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
-OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
-HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
-WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
-OTHER DEALINGS IN THE SOFTWARE.
+    var user = new User();
+
+    // Set strongly typed properties
+    user.Email = "rick@west-wind.com";
+    user.Password = "nonya123";
+    user.Name = "Rickochet";
+    user.Active = true;
+
+    // Now add dynamic properties
+    dynamic duser = user;
+    duser.Entered = DateTime.Now;
+    duser.Accesses = 1;
+
+    // you can also add dynamic props via indexer 
+    user["NickName"] = "AntiSocialX";
+    duser["WebSite"] = "http://www.west-wind.com/weblog";
+            
+    // Access strong type through dynamic ref
+    Assert.AreEqual(user.Name,duser.Name);
+
+    // Access strong type through indexer 
+    Assert.AreEqual(user.Password,user["Password"]);
+            
+
+    // access dyanmically added value through indexer
+    Assert.AreEqual(duser.Entered,user["Entered"]);
+            
+    // access index added value through dynamic
+    Assert.AreEqual(user["NickName"],duser.NickName);
+            
+
+    // loop through all properties dynamic AND strong type properties (true)
+    foreach (var prop in user.GetProperties(true))
+    { 
+        object val = prop.Value;
+        if (val == null)
+            val = "null";
+
+        Console.WriteLine(prop.Key + ": " + val.ToString());
+    }
+
+
+## License
+copyright, West Wind Technologies, 2012
+
