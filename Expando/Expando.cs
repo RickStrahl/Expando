@@ -1,4 +1,37 @@
-﻿using System;
+﻿#region License
+/*
+ **************************************************************
+ *  Author: Rick Strahl 
+ *          © West Wind Technologies, 2012
+ *          http://www.west-wind.com/
+ * 
+ * Created: Feb 2, 2012
+ *
+ * Permission is hereby granted, free of charge, to any person
+ * obtaining a copy of this software and associated documentation
+ * files (the "Software"), to deal in the Software without
+ * restriction, including without limitation the rights to use,
+ * copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the
+ * Software is furnished to do so, subject to the following
+ * conditions:
+ * 
+ * The above copyright notice and this permission notice shall be
+ * included in all copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+ * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+ * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+ * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+ * OTHER DEALINGS IN THE SOFTWARE.
+ **************************************************************  
+*/
+#endregion
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Dynamic;
@@ -7,12 +40,16 @@ using System.Reflection;
 namespace Westwind.Utilities.Dynamic
 {
     /// <summary>
-    /// Class that provides extensible properties and methods. This
+    /// Class that provides extensible properties and methods to an
+    /// existing object when cast to dynamic. This
     /// dynamic object stores 'extra' properties in a dictionary or
-    /// checks the actual properties of the instance.
+    /// checks the actual properties of the instance passed via 
+    /// constructor.
     /// 
-    /// This means you can subclass this expando and retrieve either
-    /// native properties or properties from values in the dictionary.
+    /// This class can be subclassed to extend an existing type or 
+    /// you can pass in an instance to extend. Properties (both
+    /// dynamic and strongly typed) can be accessed through an 
+    /// indexer.
     /// 
     /// This type allows you three ways to access its properties:
     /// 
