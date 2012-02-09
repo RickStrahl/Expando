@@ -296,6 +296,7 @@ namespace ExpandoTests
             ex.Count = 10;
             ex.Completed = DateTime.Now.AddHours(2);
 
+           
             JavaScriptSerializer ser = new JavaScriptSerializer();
             string json = ser.Serialize(ex);
         
