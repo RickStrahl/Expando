@@ -2,6 +2,9 @@
 
 Class that allows to create extensible, dynamic types that can add properties at runtime. Similar to ExpandoObject() but with the ability to subclass your objects and effectively extend the class instance. You can also mix-in a separate object via constructor parameter.
 
+You can find out more detail from this blog post:
+[Creating a dynamic, extensible C# Expando Object](http://www.west-wind.com/weblog/posts/2012/Feb/08/Creating-a-dynamic-extensible-C-Expando-Object)
+
 ##Example Usage
 
     var user = new User();
