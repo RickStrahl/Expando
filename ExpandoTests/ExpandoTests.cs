@@ -9,12 +9,10 @@ using Westwind.Utilities.Dynamic;
 using System.Web.Script.Serialization;
 using System.Collections;
 using System.Diagnostics;
+using Microsoft.CSharp.RuntimeBinder;
 
 namespace ExpandoTests
 {
-
-
-    
 
     /// <summary>
     /// Summary description for ExpandoTests
@@ -392,7 +390,6 @@ namespace ExpandoTests
 
             // shows default value Address.Phone value
             Console.WriteLine(duser.Phone);
-
         }
     }
 
