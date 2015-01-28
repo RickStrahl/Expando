@@ -329,27 +329,7 @@ namespace ExpandoTests
             Console.WriteLine(json);
         }
 
-        [TestMethod]
-        public void ExpandoObjectXmlTest()
-        {
-            dynamic ex = new ExpandoObject();
-            ex.Name = "Rick";
-            ex.Entered = DateTime.Now;
-
-            string address = "32 Kaiea";
-
-            ex.Address = address;
-            ex.Contacted = true;
-
-            ex.Count = 10;
-            ex.Completed = DateTime.Now.AddHours(2);
-
-            string xml;
-            Assert.IsTrue(SerializationUtils.SerializeObject(ex as ExpandoObject, out xml, true));
-
-
-            Console.WriteLine(xml);
-        }
+       
 
         [TestMethod]
         public void UserExampleTest()
