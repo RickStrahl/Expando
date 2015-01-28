@@ -6,11 +6,11 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("Expando")]
-[assembly: AssemblyDescription("Expando object that allows for dynamic properties and mixins")]
+[assembly: AssemblyDescription("Expando: Extensible, dynamic types for .NET")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Rick Strahl, West Wind Technologies")]
 [assembly: AssemblyProduct("Expando")]
-[assembly: AssemblyCopyright("Copyright © West Wind Technologies 2012")]
+[assembly: AssemblyCopyright("Copyright © West Wind Technologies 2012-2015")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -32,5 +32,5 @@ using System.Runtime.InteropServices;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("0.5.0.0")]
-[assembly: AssemblyFileVersion("0.5.0.0")]
+[assembly: AssemblyVersion("1.1.0.0")]
+[assembly: AssemblyFileVersion("1.1.0.0")]

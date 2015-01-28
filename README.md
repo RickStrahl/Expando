@@ -1,5 +1,5 @@
 # Expando Class
-### Extensible dynamic types for .NET that support both static and dynamic properties
+#### Extensible dynamic types for .NET that support both static and dynamic properties
 
 Expando is a .NET class that allows to create extensible types that mix the functionality of static and dynamic types. You can create static types inherited from Expando that have all the features of the static type, but when cast to dynamic support extensibility via dynamic C# features that allow you to add properties and methods at runtime. You can also create mix-ins that combine the properties from two object into a single object.
 
