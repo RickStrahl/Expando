@@ -46,11 +46,27 @@ public class User : Westwind.Utilities.Dynamic.Expando
 }
 ```
 
-Now you can use the object as a strongly typed 
+Then simply instantiate the class. If you reference the strongly typed class properties you get the strongly typed interface - ie. your declared properties:
 
-Then simply instantiate the class. If you reference the strongly typed class you get the strongly typed interface - ie. your declared properties. If you cast the object to dynamic you can also attach and read any new properties.
+```c#
+var user = new User();
+user.Email = "rick@whatsa.com"
+```
 
-The following sequence demonstrates:
+If you cast the object to dynamic you can also attach and read any new properties.
+
+```c#
+dynamic duser = user;
+duser.WhatsUp = "Hella"
+duser["WhatTime"] = DateTime.Now;
+
+string wu = duser.WhatsUp;
+string wt = duser["WhatTime"];
+wu = duser.["WhatsUp"]; // also works
+wt = duser.WhatTime;  // also works
+```
+
+The following sequence demonstrates in more detail:
 
 ```c#
 var user = new User();
