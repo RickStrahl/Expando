@@ -253,7 +253,7 @@ Produces the following XML:
 Note that the XML serializes the dynaimc properties as a collection courtesy of the PropertyBag() custom XML serializer. Although this XML schema isn't as clean as the JSON, it does work with two-way serialization to properly deserialize the object.
 
 ### Downsides
-There are a few issues you need to consider when using this class.
+There are a few issues you should be aware of when you use this class. They're not show stoppers by any means, but keep the following in mind:
 
 ##### Must inherit
 First, you have to inherit from Expando in order to use it to extend an existing type. So you'll always introduce an extra layer of inheritance. For many use cases this isn't a problem, but if you need to inherit multiple levels this can become a problem. A work around for this is to use composition by adding an Expando object property to an existing object to provide the dynamic extensibility and mix-in features to your type.
