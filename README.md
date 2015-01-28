@@ -246,38 +246,6 @@ Produces the following XML:
    <Active>true</Active>
    <ExpiresOn xsi:nil="true" />
 </User>
-<?xml version="1.0" encoding="utf-8"?>
-<User xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-   <Properties>
-      <item>
-         <key>Entered</key>
-         <value type="datetime">2015-01-28T11:24:27.0119386-10:00</value>
-      </item>
-      <item>
-         <key>Company</key>
-         <value>West Wind</value>
-      </item>
-      <item>
-         <key>Accesses</key>
-         <value type="integer">10</value>
-      </item>
-      <item>
-         <key>Address</key>
-         <value>32 Kaiea</value>
-      </item>
-      <item>
-         <key>Email</key>
-         <value>rick@west-wind.com</value>
-      </item>
-      <item>
-         <key>TotalOrderAmounts</key>
-         <value type="decimal">51233.99</value>
-      </item>
-   </Properties>
-   <Name>Rick</Name>
-   <Active>true</Active>
-   <ExpiresOn xsi:nil="true" />
-</User>
 ```
 
 Note that the XML serializes the dynaimc properties as a collection courtesy of the PropertyBag() custom XML serializer. Although this XML schema isn't as clean as the JSON, it does work with two-way serialization to properly deserialize the object.
