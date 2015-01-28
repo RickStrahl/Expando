@@ -1,18 +1,20 @@
 # Expando Class
 #### Extensible dynamic types for .NET that support both static and dynamic properties
 
-Expando is a .NET class that allows to create extensible types that mix the functionality of static and dynamic types. You can create static types inherited from Expando that have all the features of the static type, but when cast to dynamic support extensibility via dynamic C# features that allow you to add properties and methods at runtime. You can also create mix-ins that combine the properties from two object into a single object.
+Expando is a .NET class that allows you to create extensible types that mix the functionality of static and dynamic types. You can create static types inherited from Expando that have all the features of the static type, but when cast to dynamic support extensibility via dynamic C# features that allow you to add properties and methods at runtime. You can also create mix-ins that combine the properties from two objects into a single object.
 
-The library supports two-serialization with JSON.NET and XmlSerializer which allows building extensible types that can persist themselves.
+The library supports two-way serialization with JSON.NET and XmlSerializer which allows building extensible types that can persist and restore themselves. This is very useful for data models that can expose extensible custom properties that can be persisted as serialized strings for example.
 
-This class provides functionality similar to the native `ExpandoObject` class, but with many more features for working with existing statically typed Types that allows you to extend existing types with new functionality.
+This class provides functionality similar to the native `ExpandoObject` class, but with many more features for working with existing statically typed Types, the ability to serialize and to inherit from to extend existing types.
 
 ### Features
 
 Expando has the following features:
 
+* Allows strongly typed classes (must inherit from Expando)
 * Supports strongly typed Properties and Methods
 * Supports dynamically added Properties and Methods
+* Allows extension of strongly typed classes with dynamic features
 * Supports string based collection access to properties<br/>
 (both on static and dynamic properties)
 * Create Mix-ins of two types that combine properties
@@ -22,7 +24,7 @@ You can find out more detail from this blog post:
 [Creating a dynamic, extensible C# Expando Object](http://www.west-wind.com/weblog/posts/2012/Feb/08/Creating-a-dynamic-extensible-C-Expando-Object)
 
 ### Example Usage
-This class essentially acts as a mix-in where you can create strongly typed object and add dynamic properties to this strongly typed object.
+This class essentially acts as a mix-in where you can create a strongly typed object and add dynamic properties to it.
 
 To start create a class that inherits from the Expando class and simply create your class as usual by adding properties:
 
@@ -249,6 +251,18 @@ Produces the following XML:
 ```
 
 Note that the XML serializes the dynaimc properties as a collection courtesy of the PropertyBag() custom XML serializer. Although this XML schema isn't as clean as the JSON, it does work with two-way serialization to properly deserialize the object.
+
+### Downsides
+There are a few issues you need to consider when using this class.
+
+##### Must inherit
+First, you have to inherit from Expando in order to use it to extend an existing type. So you'll always introduce an extra layer of inheritance. For many use cases this isn't a problem, but if you need to inherit multiple levels this can become a problem. A work around for this is to use composition by adding an Expando object property to an existing object to provide the dynamic extensibility and mix-in features to your type.
+
+##### Noisy Class Interface
+This class inherits from DynamicObject and implements the required methods on that class to provide the dynamic features. These methods end up on the class interface you inherit. Not clean, but luckily most base methods group together (TryXXXX methods).
+
+##### Performance
+If you stick purely to the static interface of the class performance should be excellent. But once you start accessing the dynamic properties you're into late runtime binding (or at least one-time late binding) and there will be some performance hit for using dynamic properties. However, dynamic can actually be very fast after the first access of each member. It's a tradeoff for the flexibility you get. Make sure you use a static reference for the static interface where possible and explicitly use the dynamic interface when accessing the dynamic properties. 
 
 ## License
 This Expando library is an open source and licensed under **[MIT license](http://opensource.org/licenses/MIT)**, and there's no charge to use, integrate or modify the code for this project. You are free to use it in personal, commercial, government and any other type of application. Commercial licenses are also available.
