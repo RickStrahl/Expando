@@ -400,8 +400,7 @@ namespace ExpandoTests
             Console.WriteLine(duser.Phone);
         }
     }
-
-    [Serializable]
+    
     public class ExpandoInstance : Expando
     {
         public string Name { get; set; }
@@ -419,7 +418,6 @@ namespace ExpandoTests
         { }
     }
 
-    [Serializable]
     public class Address
     {
         public string FullAddress { get; set; }
@@ -434,7 +432,6 @@ namespace ExpandoTests
         }
     }
 
-    [Serializable]
     public class User : Westwind.Utilities.Dynamic.Expando
     {
         public string Email { get; set; }
