@@ -124,9 +124,16 @@ namespace Westwind.Utilities.Dynamic
         }
 
 
+        /// <summary>
+        /// Return both instance and dynamic names.
+        /// 
+        /// Important to return both so JSON serialization with 
+        /// Json.NET works.
+        /// </summary>
+        /// <returns></returns>
         public override IEnumerable<string> GetDynamicMemberNames()
         {
-            foreach (var prop in this.GetProperties(false))            
+            foreach (var prop in GetProperties(true))            
                 yield return prop.Key;            
         }
 
@@ -332,7 +339,7 @@ namespace Westwind.Utilities.Dynamic
                     // try to get from properties collection first
                     return Properties[key];
                 }
-                catch (KeyNotFoundException ex)
+                catch (KeyNotFoundException)
                 {
                     // try reflection on instanceType
                     object result = null;

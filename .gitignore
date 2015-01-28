@@ -5,6 +5,7 @@
 bin
 [dD]ebug*/
 [rR]elease*/
+packages/
 obj/
 *.ncb
 *.cache

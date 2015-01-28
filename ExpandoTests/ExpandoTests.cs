@@ -10,6 +10,7 @@ using System.Web.Script.Serialization;
 using System.Collections;
 using System.Diagnostics;
 using Microsoft.CSharp.RuntimeBinder;
+using Newtonsoft.Json;
 
 namespace ExpandoTests
 {
@@ -35,17 +36,12 @@ namespace ExpandoTests
         ///</summary>
         public TestContext TestContext
         {
-            get
-            {
-                return testContextInstance;
-            }
-            set
-            {
-                testContextInstance = value;
-            }
+            get { return testContextInstance; }
+            set { testContextInstance = value; }
         }
 
         #region Additional test attributes
+
         //
         // You can use the following additional attributes as you write your tests:
         //
@@ -65,6 +61,7 @@ namespace ExpandoTests
         // [TestCleanup()]
         // public void MyTestCleanup() { }
         //
+
         #endregion
 
         /// <summary>
@@ -74,15 +71,19 @@ namespace ExpandoTests
         /// More specific tests are provided below
         /// </summary>
         [TestMethod]
-        public void ExandoModesTest()
+        public void ExandoBasicTests()
         {
             // Set standard properties
-            var ex = new ExpandoInstance();
-            ex.Name = "Rick";
-            ex.Entered = DateTime.Now;
-
-            // set dynamic properties
+            var ex = new User()
+            {
+                Name = "Rick",
+                Email = "rstrahl@whatsa.com",
+                Active = true
+            };
+            
+            // set dynamic properties that don't exist on type
             dynamic exd = ex;
+            exd.Entered = DateTime.Now; 
             exd.Company = "West Wind";
             exd.Accesses = 10;
 
@@ -108,7 +109,7 @@ namespace ExpandoTests
             Assert.AreEqual(ex.Name, ex["Name"] as string);
 
             // dynamic can access everything
-            Assert.AreEqual(ex.Name, exd.Name);  // native property
+            Assert.AreEqual(ex.Name, exd.Name); // native property
             Assert.AreEqual(ex["TotalOrderAmounts"], exd.TotalOrderAmounts); // dictionary property
         }
 
@@ -117,15 +118,17 @@ namespace ExpandoTests
         public void AddAndReadDynamicPropertiesTest()
         {
             // strong typing first
-            var ex = new ExpandoInstance();
+            var ex = new User();
             ex.Name = "Rick";
-            ex.Entered = DateTime.Now;
+            ex.Email = "rick@whatsa.com";
 
             // create dynamic and create new props
             dynamic exd = ex;
+            
             string company = "West Wind";
             int count = 10;
 
+            exd.entered = DateTime.Now; 
             exd.Company = company;
             exd.Accesses = count;
 
@@ -174,11 +177,11 @@ namespace ExpandoTests
 
             // turn into dynamic
             dynamic exd = ex;
-            
+
             // Dynamic can access 
             Assert.AreEqual(ex.Name, exd.Name);
             Assert.AreEqual(ex.Entered, exd.Entered);
-            
+
         }
 
         [TestMethod]
@@ -199,18 +202,18 @@ namespace ExpandoTests
             // Dictionary Count - 2 dynamic props added
             Assert.IsTrue(ex.Properties.Count == 4);
 
-               // iterate over all properties
+            // iterate over all properties
             foreach (KeyValuePair<string, object> prop in exd.GetProperties(true))
             {
                 Console.WriteLine(prop.Key + " " + prop.Value);
-            }            
+            }
         }
 
         [TestMethod]
         public void MixInObjectInstanceTest()
         {
             // Create expando an mix-in second objectInstanceTest
-            var ex = new ExpandoInstance( new Address() );
+            var ex = new ExpandoInstance(new Address());
             ex.Name = "Rick";
             ex.Entered = DateTime.Now;
 
@@ -218,66 +221,94 @@ namespace ExpandoTests
             dynamic exd = ex;
 
             // values should show Addresses initialized values (not null)
-            Console.WriteLine(exd.Address);
+            Console.WriteLine(exd.FullAddress);
             Console.WriteLine(exd.Email);
             Console.WriteLine(exd.Phone);
         }
 
-
         [TestMethod]
-        public void JsonSerializeTest()
+        public void TwoWayJsonSerializeExpandoTyped()
         {
-            var ex = new ExpandoInstance();
-            ex.Name = "Rick";
-            ex.Entered = DateTime.Now;
+            // Set standard properties
+            var ex = new User()
+            {
+                Name = "Rick",
+                Email = "rstrahl@whatsa.com",
+                Password = "Seekrit23",
+                Active = true
+            };
 
-            string address = "32 Kaiea";
-
-            ex["Address"] = address;
-            ex["Contacted"] = true;
-            
+            // set dynamic properties
             dynamic exd = ex;
-            exd.Count = 10;
-            exd.Completed = DateTime.Now.AddHours(2);
+            exd.Entered = DateTime.Now;
+            exd.Company = "West Wind";
+            exd.Accesses = 10;
 
+            // set dynamic properties as dictionary
+            ex["Address"] = "32 Kaiea";
+            ex["Email"] = "rick@west-wind.com";
+            ex["TotalOrderAmounts"] = 51233.99M;
 
-            JavaScriptSerializer ser = new JavaScriptSerializer();
+            // *** Should serialize both static properties dynamic properties
+            var json = JsonConvert.SerializeObject(ex, Formatting.Indented);
             Console.WriteLine("*** Serialized Native object:");
-            Console.WriteLine(ser.Serialize(ex));
-            Console.WriteLine();
+            Console.WriteLine(json);
 
-            Console.WriteLine();
-            Console.WriteLine("*** Serialized Dynamic object:");
-            Console.WriteLine(ser.Serialize(exd));
-            Console.WriteLine();
+            Assert.IsTrue(json.Contains("Name")); // static
+            Assert.IsTrue(json.Contains("Company")); // dynamic
+
+
+            // *** Now deserialize the JSON back into object to 
+            // *** check for two-way serialization
+            var user2 = JsonConvert.DeserializeObject<User>(json);
+            json = JsonConvert.SerializeObject(user2, Formatting.Indented);
+            Console.WriteLine("*** De-Serialized User object:");
+            Console.WriteLine(json);
+
+            Assert.IsTrue(json.Contains("Name")); // static
+            Assert.IsTrue(json.Contains("Company")); // dynamic
         }
 
         [TestMethod]
-        public void XmlSerializeTest()
+        public void TwoWayXmlSerializeExpandoTyped()
         {
-            var ex = new ExpandoInstance();
+            // Set standard properties
+            var ex = new User();
             ex.Name = "Rick";
-            ex.Entered = DateTime.Now;
+            ex.Active = true;
 
-            string address = "32 Kaiea";
 
-            ex["Address"] = address;
-            ex["Contacted"] = true;
-
+            // set dynamic properties
             dynamic exd = ex;
-            exd.Count = 10;
-            exd.Completed = DateTime.Now.AddHours(2);
+            exd.Entered = DateTime.Now;
+            exd.Company = "West Wind";
+            exd.Accesses = 10;
 
+            // set dynamic properties as dictionary
+            ex["Address"] = "32 Kaiea";
+            ex["Email"] = "rick@west-wind.com";
+            ex["TotalOrderAmounts"] = 51233.99M;
+            
+            // Serialize creates both static and dynamic properties
+            // dynamic properties are serialized as a 'collection'
             string xml;
-            SerializationUtils.SerializeObject(ex, out xml);
+            SerializationUtils.SerializeObject(exd, out xml);
+            Console.WriteLine("*** Serialized Dynamic object:");
+            Console.WriteLine(xml);
 
-            Console.WriteLine(xml);            
-        
-            ExpandoInstance ex2 = SerializationUtils.DeSerializeObject(xml, typeof(ExpandoInstance)) as ExpandoInstance;
+            Assert.IsTrue(xml.Contains("Name")); // static
+            Assert.IsTrue(xml.Contains("Company")); // dynamic
 
-            Assert.IsNotNull(ex2);
-            Assert.IsTrue(ex2["Address"] as string == address);
+            // Serialize
+            var user2 = SerializationUtils.DeSerializeObject(xml,typeof(User));
+            SerializationUtils.SerializeObject(exd, out xml);
+            Console.WriteLine(xml);
+
+            Assert.IsTrue(xml.Contains("Rick")); // static
+            Assert.IsTrue(xml.Contains("West Wind")); // dynamic
         }
+
+
 
         [TestMethod]
         public void ExpandoObjectJsonTest()
@@ -290,15 +321,12 @@ namespace ExpandoTests
 
             ex.Address = address;
             ex.Contacted = true;
-            
+
             ex.Count = 10;
             ex.Completed = DateTime.Now.AddHours(2);
-
-           
-            JavaScriptSerializer ser = new JavaScriptSerializer();
-            string json = ser.Serialize(ex);
-        
-            Console.WriteLine(json);                        
+            
+            string json = JsonConvert.SerializeObject(ex,Formatting.Indented);
+            Console.WriteLine(json);
         }
 
         [TestMethod]
@@ -318,61 +346,61 @@ namespace ExpandoTests
 
             string xml;
             Assert.IsTrue(SerializationUtils.SerializeObject(ex as ExpandoObject, out xml, true));
-            
-            
+
+
             Console.WriteLine(xml);
         }
 
         [TestMethod]
         public void UserExampleTest()
-        {            
-    var user = new User();
+        {
+            var user = new User();
 
-    // Set strongly typed properties
-    user.Email = "rick@west-wind.com";
-    user.Password = "nonya123";
-    user.Name = "Rickochet";
-    user.Active = true;
+            // Set strongly typed properties
+            user.Email = "rick@west-wind.com";
+            user.Password = "nonya123";
+            user.Name = "Rickochet";
+            user.Active = true;
 
-    // Now add dynamic properties
-    dynamic duser = user;
-    duser.Entered = DateTime.Now;
-    duser.Accesses = 1;
+            // Now add dynamic properties
+            dynamic duser = user;
+            duser.Entered = DateTime.Now;
+            duser.Accesses = 1;
 
-    // you can also add dynamic props via indexer 
-    user["NickName"] = "AntiSocialX";
-    duser["WebSite"] = "http://www.west-wind.com/weblog";
-            
-    // Access strong type through dynamic ref
-    Assert.AreEqual(user.Name,duser.Name);
+            // you can also add dynamic props via indexer 
+            user["NickName"] = "AntiSocialX";
+            duser["WebSite"] = "http://www.west-wind.com/weblog";
 
-    // Access strong type through indexer 
-    Assert.AreEqual(user.Password,user["Password"]);
-            
+            // Access strong type through dynamic ref
+            Assert.AreEqual(user.Name, duser.Name);
 
-    // access dyanmically added value through indexer
-    Assert.AreEqual(duser.Entered,user["Entered"]);
-            
-    // access index added value through dynamic
-    Assert.AreEqual(user["NickName"],duser.NickName);
-            
+            // Access strong type through indexer 
+            Assert.AreEqual(user.Password, user["Password"]);
 
-    // loop through all properties dynamic AND strong type properties (true)
-    foreach (var prop in user.GetProperties(true))
-    { 
-        object val = prop.Value;
-        if (val == null)
-            val = "null";
 
-        Console.WriteLine(prop.Key + ": " + val.ToString());
-    }
+            // access dyanmically added value through indexer
+            Assert.AreEqual(duser.Entered, user["Entered"]);
+
+            // access index added value through dynamic
+            Assert.AreEqual(user["NickName"], duser.NickName);
+
+
+            // loop through all properties dynamic AND strong type properties (true)
+            foreach (var prop in user.GetProperties(true))
+            {
+                object val = prop.Value;
+                if (val == null)
+                    val = "null";
+
+                Console.WriteLine(prop.Key + ": " + val.ToString());
+            }
         }
 
         [TestMethod]
         public void ExpandoMixinTest()
         {
             // have Expando work on Addresses
-            var user = new User( new Address() );
+            var user = new User(new Address());
 
             // cast to dynamicAccessToPropertyTest
             dynamic duser = user;
@@ -380,7 +408,7 @@ namespace ExpandoTests
             // Set strongly typed properties
             duser.Email = "rick@west-wind.com";
             user.Password = "nonya123";
-            
+
             // Set properties on address object
             duser.Address = "32 Kaiea";
             //duser.Phone = "808-123-2131";
@@ -394,13 +422,13 @@ namespace ExpandoTests
     }
 
     [Serializable]
-    public class ExpandoInstance : Westwind.Utilities.Dynamic.Expando
+    public class ExpandoInstance : Expando
     {
         public string Name { get; set; }
         public DateTime Entered { get; set; }
 
-
-        public ExpandoInstance() { }
+        public ExpandoInstance()
+        { }
 
         /// <summary>
         /// Allow passing in of an instance
@@ -410,7 +438,6 @@ namespace ExpandoTests
             : base(instance)
         { }
     }
-
 
     [Serializable]
     public class Address
@@ -422,11 +449,12 @@ namespace ExpandoTests
         public Address()
         {
             FullAddress = "32 Kaiea";
-            Phone = "808 NO-HATE";
+            Phone = "808 132-3456";
             Email = "rick@whatsa.com";
         }
     }
 
+    [Serializable]
     public class User : Westwind.Utilities.Dynamic.Expando
     {
         public string Email { get; set; }
@@ -436,7 +464,8 @@ namespace ExpandoTests
         public DateTime? ExpiresOn { get; set; }
 
         public User() : base()
-        { }
+        {
+        }
 
         // only required if you want to mix in seperate instance
         public User(object instance)
