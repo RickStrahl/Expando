@@ -75,7 +75,7 @@ namespace Westwind.Utilities.Dynamic
             get
             {
                 if (_InstancePropertyInfo == null && Instance != null)                
-                    _InstancePropertyInfo = Instance.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly);
+                    _InstancePropertyInfo = Instance.GetType().GetProperties();
                 return _InstancePropertyInfo;                
             }
         }

@@ -32,6 +32,12 @@ namespace ExpandoTests
         }
     }
 
+    public class ParentObj : ObjWithProp
+    {
+        public int SomeOtherProp { get; set; }
+    }
+
+
     [TestFixture]
     class ExpandoNunit
     {
@@ -62,6 +68,37 @@ namespace ExpandoTests
 
         }
 
+        [Test]
+        public void Given_Obj_When_GetPropsWithInstance_Then_GetProps()
+        {
+            //arrange
+
+            ObjWithProp obj = new ObjWithProp();
+            obj.SomeProp = "value1";
+            //act
+            List<string> properties = obj.GetProperties(true).Select(x => x.Key).ToList();
+            //assert
+            CollectionAssert.AreEqual(new List<string>() {"SomeProp"}, properties);
+
         }
-    
+
+        [Test]
+        public void Given_ParentObj_When_GetPropsWithInstance_Then_GetBaseAndParentProps()
+        {
+            //arrange
+
+            ParentObj obj = new ParentObj();
+            obj.SomeProp = "value1";
+            obj.SomeOtherProp = 1;
+            //act
+            List<string> properties = obj.GetProperties(true).Select(x => x.Key).ToList();
+            //assert
+            CollectionAssert.AreEqual(new List<string>() { "SomeOtherProp","SomeProp" }, properties);
+
+        }
+
+
+
+    }
+
 }
