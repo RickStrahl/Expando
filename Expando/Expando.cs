@@ -378,7 +378,13 @@ namespace Westwind.Utilities.Dynamic
             if (includeInstanceProperties && Instance != null)
             {
                 foreach (var prop in this.InstancePropertyInfo)
+                {
+                    if (prop.Name=="Item")
+                    {
+                        continue;
+                    }
                     yield return new KeyValuePair<string, object>(prop.Name, prop.GetValue(Instance, null));
+                }
             }
 
             foreach (var key in this.Properties.Keys)

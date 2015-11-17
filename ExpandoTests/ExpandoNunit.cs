@@ -12,6 +12,24 @@ namespace ExpandoTests
     public class ObjWithProp : Expando
     {
         public string SomeProp { get; set; }
+        public object this[int key]
+        {
+            get
+            {
+                string property = this.GetProperties()[key];
+                return this[property];
+            }
+            set
+            {
+                string property = GetProperties()[key];
+                this[property] = value;
+            }
+        }
+         public List<string> GetProperties()
+        {
+            List<string> properties = base.GetProperties(true).Select(x => x.Key).ToList();
+            return properties;
+        }
     }
 
     [TestFixture]
@@ -29,6 +47,21 @@ namespace ExpandoTests
                 Assert.AreEqual("value2", obj.SomeProp);
 
             }
+
+        [Test]
+        public void Given_Obj_When_GetPropsWithInstance_Then_GetPropsWithoutItemProp()
+        {
+            //arrange
+
+            ObjWithProp obj = new ObjWithProp();
+            obj.SomeProp = "value1";
+            //act
+            List<string> properties = obj.GetProperties(true).Select(x=>x.Key).ToList();
+            //assert
+            CollectionAssert.DoesNotContain(properties,"Item");
+
+        }
+
         }
     
 }
