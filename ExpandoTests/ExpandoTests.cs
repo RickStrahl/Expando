@@ -399,6 +399,23 @@ namespace ExpandoTests
             // shows default value Address.Phone value
             Console.WriteLine(duser.Phone);
         }
+
+
+        [TestMethod]
+        public void DictionaryConvertsToExpando()
+        {
+            var dictionary = new Dictionary<string, object>
+                       {
+                           {"MyProp1", "Prop1"},
+                           {"My Prop 2", "Hello"},
+                           {"User Prop", new User {Email = "me@me.com", Name = "Rick"}},
+                           {"My Address", new Address {FullAddress = "Orlando, FL", Phone = "555-555-5555"}}
+                       };
+            dynamic converted = dictionary.ToIndexableExpando();
+
+            Assert.AreEqual(dictionary["MyProp1"], converted["MyProp1"]);
+            Assert.AreEqual(converted["My Address"].FullAddress, "Orlando, FL");
+        }
     }
     
     public class ExpandoInstance : Expando
