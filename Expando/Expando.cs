@@ -359,7 +359,7 @@ namespace Westwind.Utilities.Dynamic
                 }
 
                 // check instance for existance of type first
-                var miArray = InstanceType.GetMember(key, BindingFlags.Public | BindingFlags.GetProperty);
+                var miArray = InstanceType.GetMember(key, BindingFlags.Public | BindingFlags.GetProperty|BindingFlags.Instance);
                 if (miArray != null && miArray.Length > 0)
                     SetProperty(Instance, key, value);
                 else
@@ -378,7 +378,13 @@ namespace Westwind.Utilities.Dynamic
             if (includeInstanceProperties && Instance != null)
             {
                 foreach (var prop in this.InstancePropertyInfo)
+                {
+                    if (prop.Name=="Item")
+                    {
+                        continue;
+                    }
                     yield return new KeyValuePair<string, object>(prop.Name, prop.GetValue(Instance, null));
+                }
             }
 
             foreach (var key in this.Properties.Keys)
