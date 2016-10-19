@@ -192,7 +192,10 @@ namespace Westwind.Utilities.Dynamic
                     if (result)
                         return true;
                 }
-                catch { }
+                catch
+                {
+                    return false;
+                }
             }
             
             // no match - set or add to dictionary
@@ -359,7 +362,7 @@ namespace Westwind.Utilities.Dynamic
                 }
 
                 // check instance for existance of type first
-                var miArray = InstanceType.GetMember(key, BindingFlags.Public | BindingFlags.GetProperty);
+                var miArray = InstanceType.GetMember(key, BindingFlags.Public | BindingFlags.GetProperty | BindingFlags.Instance);
                 if (miArray != null && miArray.Length > 0)
                     SetProperty(Instance, key, value);
                 else

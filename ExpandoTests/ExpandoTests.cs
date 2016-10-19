@@ -399,6 +399,44 @@ namespace ExpandoTests
             // shows default value Address.Phone value
             Console.WriteLine(duser.Phone);
         }
+
+
+        public class ObjWithProp : Expando
+        {
+            public string SomeProp { get; set; }
+        }
+
+        [TestMethod]
+        public void GivenPropWhenSetWithIndexThenPropsValue()
+        {
+            //arrange
+            ObjWithProp obj = new ObjWithProp();
+            //act
+            obj.SomeProp = "value1";
+            obj["SomeProp"] = "value2";
+
+            //assert
+            Assert.AreEqual("value2", obj.SomeProp);
+
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(RuntimeBinderException))]
+        public void InvalidAssignmentErrorOnStaticProperty()
+        {
+            dynamic dynUser = new User();
+            dynUser.Name = 100;  // RuntimeBinderException
+
+            // this should never run
+            var user = dynUser as User;
+            user.Name = "Rick";
+            Console.WriteLine(user.Name);                        
+            Console.WriteLine(user["Name"]);
+            
+
+            Assert.Fail("Invalid Assignment should have thrown exception");
+            //>> 100
+        }
     }
     
     public class ExpandoInstance : Expando
