@@ -437,6 +437,28 @@ namespace ExpandoTests
             Assert.Fail("Invalid Assignment should have thrown exception");
             //>> 100
         }
+
+        [TestMethod]
+        public void ExpandoFromDictionary()
+        {
+            var dict = new Dictionary<string, object>()
+            {
+                {"Name", "Rick"},
+                {"Company", "West Wind"},
+                {"Accesses", 2}
+            };
+
+            dynamic expando = new Expando(dict);
+
+            Console.WriteLine(expando.Name);
+            Console.WriteLine(expando.Company);
+            Console.WriteLine(expando.Accesses);
+
+            Assert.AreEqual(dict["Name"], expando.Name);
+            Assert.AreEqual(dict["Company"], expando.Company);
+            Assert.AreEqual(dict["Accesses"], expando.Accesses);
+        }
+
     }
     
     public class ExpandoInstance : Expando

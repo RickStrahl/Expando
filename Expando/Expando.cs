@@ -36,6 +36,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Dynamic;
 using System.Reflection;
+using ICollection = System.Collections.ICollection;
 
 namespace Westwind.Utilities.Dynamic
 {
@@ -115,15 +116,63 @@ namespace Westwind.Utilities.Dynamic
             Initialize(instance);
         }
 
+        /// <summary>
+        /// Create an Expando from a dictionary
+        /// </summary>
+        /// <param name="dict"></param>
+        /// <param name="expando">Expando instance</param>
+        public Expando(IDictionary<string, object> dict)
+        {            
+            var expando = this;
 
-        protected virtual void Initialize(object instance)
+            Initialize(expando);
+
+            Properties = new PropertyBag();
+
+            foreach (var kvp in dict)
+            {
+                var kvpValue = kvp.Value;
+                if (kvpValue is IDictionary<string,object>)                
+                {
+                    var expandoVal = new Expando(kvpValue);
+                    expando[kvp.Key] = expandoVal;
+                }
+                else if (kvp.Value is ICollection)
+                {
+                    // iterate through the collection and convert any string-object dictionaries
+                    // along the way into expando objects
+                    var objList = new List<object>();
+                    foreach (var item in (ICollection)kvp.Value)
+                    {
+                        var itemVals = item as IDictionary<string, object>;
+                        if (itemVals != null)
+                        {
+                            var expandoItem = new Expando(itemVals);
+                            objList.Add(expandoItem);
+                        }
+                        else
+                        {
+                            objList.Add(item);
+                        }
+                    }
+                    expando[kvp.Key] = objList;
+                }
+                else
+                {
+                    expando[kvp.Key] = kvpValue;
+                }
+            }
+        }
+
+
+        protected void Initialize(object instance)
         {
             Instance = instance;
             if (instance != null)
                 InstanceType = instance.GetType();           
         }
 
-
+        
         /// <summary>
         /// Return both instance and dynamic names.
         /// 
@@ -412,7 +461,53 @@ namespace Westwind.Utilities.Dynamic
             }
 
             return false;
-        }        
+        }
+
+
+        /// <summary>
+        /// Converts an <see cref="IDictionary&lt;string, object&gt;"/> into an <see cref="Expando"/>
+        /// </summary>
+        /// <returns><see cref="Expando"/></returns>
+        public static Expando ToIndexableExpando(IDictionary<string, object> dict)
+        {
+            var expando = new Expando();
+
+            
+            foreach (var kvp in dict)
+            {
+                var kvpValue = kvp.Value as IDictionary<string, object>;
+                if (kvpValue != null)
+                {
+                    var expandoVal = ToIndexableExpando(kvpValue);
+                    expando[kvp.Key] = expandoVal;
+                }
+                else if (kvp.Value is ICollection)
+                {
+                    // iterate through the collection and convert any string-object dictionaries
+                    // along the way into expando objects
+                    var objList = new List<object>();
+                    foreach (var item in (ICollection)kvp.Value)
+                    {
+                        var itemVals = item as IDictionary<string, object>;
+                        if (itemVals != null)
+                        {
+                            var expandoItem = ToIndexableExpando(itemVals);
+                            objList.Add(expandoItem);
+                        }
+                        else
+                        {
+                            objList.Add(item);
+                        }
+                    }
+                    expando[kvp.Key] = objList;
+                }
+                else
+                {
+                    expando[kvp.Key] = kvp.Value;
+                }
+            }
+            return expando;
+        }
 
     }
 }

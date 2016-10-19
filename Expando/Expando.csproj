@@ -40,7 +40,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ExpandoExtensions.cs" />
     <Compile Include="Utilities\Utilities.cs" />
     <Compile Include="Expando.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
