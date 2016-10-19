@@ -1,4 +1,6 @@
-﻿using System;
+﻿#define SupportXmlSerialization
+
+using System;
 using System.Text;
 using System.Collections.Generic;
 using System.Linq;
@@ -269,6 +271,7 @@ namespace ExpandoTests
             Assert.IsTrue(json.Contains("Company")); // dynamic
         }
 
+#if SupportXmlSerialization
         [TestMethod]
         public void TwoWayXmlSerializeExpandoTyped()
         {
@@ -307,7 +310,7 @@ namespace ExpandoTests
             Assert.IsTrue(xml.Contains("Rick")); // static
             Assert.IsTrue(xml.Contains("West Wind")); // dynamic
         }
-
+#endif
 
 
         [TestMethod]
@@ -348,7 +351,7 @@ namespace ExpandoTests
             duser.Accesses = 1;
 
             // you can also add dynamic props via indexer 
-            user["NickName"] = "AntiSocialX";
+            user["NickName"] = "Wreck";
             duser["WebSite"] = "http://www.west-wind.com/weblog";
 
             // Access strong type through dynamic ref

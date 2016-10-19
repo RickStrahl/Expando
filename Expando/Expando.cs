@@ -1,4 +1,6 @@
-﻿#region License
+﻿#define SupportXmlSerialization
+
+#region License
 /*
  **************************************************************
  *  Author: Rick Strahl 
@@ -88,7 +90,11 @@ namespace Westwind.Utilities.Dynamic
         /// stored on this object/instance
         /// </summary>        
         /// <remarks>Using PropertyBag to support XML Serialization of the dictionary</remarks>
+#if SupportXmlSerialization
         public PropertyBag Properties = new PropertyBag();
+#else
+        public Dictionary<string,object> Properties = new Dictionary<string,object>();  
+#endif        
 
         //public Dictionary<string,object> Properties = new Dictionary<string, object>();
 

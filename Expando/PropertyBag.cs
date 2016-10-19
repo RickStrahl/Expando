@@ -1,19 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
+
 using System.Xml.Serialization;
 using System.Xml;
 
 namespace Westwind.Utilities.Dynamic
 {
     /// <summary>
-    /// Creates a serializable string/object dictionary that is XML serializable
+    /// Creates an XML serializable string/object dictionary.
     /// Encodes keys as element names and values as simple values with a type
     /// attribute that contains an XML type name. Complex names encode the type 
     /// name with type='___namespace.classname' format followed by a standard xml
     /// serialized format. The latter serialization can be slow so it's not recommended
-    /// to pass complex types if performance is critical.
+    /// to pass complex types if performance is critical.    
     /// </summary>
     [XmlRoot("properties")]
+
     public class PropertyBag : PropertyBag<object>
     {
         /// <summary>
@@ -228,6 +230,7 @@ namespace Westwind.Utilities.Dynamic
             bag.FromXml(xml);
             return bag;
         }
+
     }
 
 }

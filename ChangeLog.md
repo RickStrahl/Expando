@@ -11,9 +11,9 @@ Expando now fails on invalid assignment (wrong type for example) on instance pro
 
 ### Version 1.1
 
-* **Fix Serialization with JSON.NET**<br/>
+* **Fix Serialization with JSON.NET**   
 Fix Serialization with JSON.NET to support retrieving both static and dynamic properties.
 
-* **Updated Tests**<br/>
+* **Updated Tests**  
 Added new tests for XML and JSON.NET serialization. Fix mix-in test and clarify several of the other tests 
 
