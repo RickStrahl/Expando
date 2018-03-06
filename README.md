@@ -23,6 +23,13 @@ Expando has the following features:
 You can find out more detail from this blog post:
 [Creating a dynamic, extensible C# Expando Object](http://www.west-wind.com/weblog/posts/2012/Feb/08/Creating-a-dynamic-extensible-C-Expando-Object)
 
+### Installation
+You can use this class with source code provided here or by using the [Westwind.Utilities NuGet package](https://www.nuget.org/packages/Westwind.Utilities).
+
+```
+Install-Package Westwind.Utilities
+```
+
 ### Example Usage
 This class essentially acts as a mix-in where you can create a strongly typed object and add dynamic properties to it.
 
