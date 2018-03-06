@@ -27,7 +27,7 @@ You can find out more detail from this blog post:
 You can use this class with source code provided here or by using the [Westwind.Utilities NuGet package](https://www.nuget.org/packages/Westwind.Utilities).
 
 ```
-Install-Package Westwind.Utilities
+pm> Install-Package Westwind.Utilities
 ```
 
 ### Example Usage
